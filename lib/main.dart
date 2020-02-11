@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'question_bank.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 void main() => runApp(Quizzler());
 
@@ -25,6 +27,53 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
+  int currentQuestion = 0;
+  List<Widget> scoreKeeper = [];
+
+  Widget correctAnswer() {
+    return Icon(
+      Icons.check,
+      color: Colors.green,
+    );
+  }
+
+  Widget wrongAnswer() {
+    return Icon(
+      Icons.close,
+      color: Colors.red,
+    );
+  }
+
+  void nextQuestion() {
+    if (currentQuestion < questionBank.length - 1) {
+      currentQuestion++;
+    } else {}
+  }
+
+  void gameOver() {
+    Alert(
+      context: context,
+      type: AlertType.success,
+      title: "GAME OVER",
+      desc: "Good job out there. Want to play again?",
+      buttons: [
+        DialogButton(
+            child: Text(
+              "Play Again",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            width: 120,
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                currentQuestion = 0;
+                scoreKeeper = [];
+              });
+            })
+      ],
+    ).show();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -37,7 +86,7 @@ class _QuizPageState extends State<QuizPage> {
             padding: EdgeInsets.all(10.0),
             child: Center(
               child: Text(
-                'This is where the question text will go.',
+                questionBank[currentQuestion].questionText,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 25.0,
@@ -61,7 +110,24 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                //The user picked true.
+                if (currentQuestion < questionBank.length - 1) {
+                  bool answer = questionBank[currentQuestion].questionAnswer;
+                  if (answer == true) {
+                    setState(() {
+                      scoreKeeper.add(correctAnswer());
+                      nextQuestion();
+                    });
+                  } else {
+                    setState(() {
+                      scoreKeeper.add(wrongAnswer());
+                      nextQuestion();
+                    });
+                  }
+                } else {
+                  setState(() {
+                    gameOver();
+                  });
+                }
               },
             ),
           ),
@@ -79,12 +145,31 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               onPressed: () {
-                //The user picked false.
+                if (currentQuestion < questionBank.length - 1) {
+                  bool answer = questionBank[currentQuestion].questionAnswer;
+                  if (answer == false) {
+                    setState(() {
+                      scoreKeeper.add(correctAnswer());
+                      nextQuestion();
+                    });
+                  } else {
+                    setState(() {
+                      scoreKeeper.add(wrongAnswer());
+                      nextQuestion();
+                    });
+                  }
+                } else {
+                  setState(() {
+                    gameOver();
+                  });
+                }
               },
             ),
           ),
         ),
-        //TODO: Add a Row here as your score keeper
+        Row(
+          children: scoreKeeper,
+        )
       ],
     );
   }
